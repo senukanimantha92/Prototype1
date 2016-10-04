@@ -1,0 +1,88 @@
+﻿@{
+    ViewBag.Title = "InvoiceList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Invoices</h2>
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-12">
+            <a href="/Invoice/Create"><button class="btn btn-primary" id="Createnew">Create Invoice</button></a>
+        </div>
+    </div>
+    <div class="row" style="margin-top:20px">
+
+        <div class="col-md-12">
+
+            <table class="table table-responsive table-striped" id="tblInvoicelist">
+                <thead>
+                    <tr>
+                        <th>Invoice No</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+        </div>
+    </div>
+        </div>
+
+        @section scripts
+{
+            <script>
+                $(document).ready(function () {
+
+
+                    var table = $("#tblInvoicelist").DataTable({
+                        ajax: {
+                            url: "/Invoice/GetInvoiceList",
+                            dataSrc: ""
+                        },
+                        columns: [
+                            {
+                                data: "InvoiceNo"
+                            },
+                            {
+                                data: "Date",
+                                render: function (data) {
+
+                                    var dateString = data.substr(6);
+                                    var currentTime = new Date(parseInt(dateString));
+                                    var month = currentTime.getMonth() + 1;
+                                    var day = currentTime.getDate();
+                                    var year = currentTime.getFullYear();
+                                    var date = day + "/" + month + "/" + year;
+
+                                    return date;
+                                }
+
+                            },
+                            {
+                                data: "Customer.Name"
+                            },
+                            {
+                                data: "Total",                            
+                                render: $.fn.dataTable.render.number( ',', '.', 2 ,'Rs'),
+                                defaultContent: "<i>Not set</i>",
+                                className: "textAlignRight"
+                            },
+                            {
+                                data: "InvoiceMasterID",
+                                render: function (data) {
+                                    return "<a href='/Invoice/Edit/" + data + "'> Update </a>";
+                                }
+                            }
+                        ]
+                    });
+
+
+                }
+                )
+            </script>
+        }

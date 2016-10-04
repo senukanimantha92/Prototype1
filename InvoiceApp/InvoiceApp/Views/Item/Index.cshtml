@@ -1,0 +1,80 @@
+﻿@model IEnumerable<InvoiceApp.Models.Item>
+
+@{
+    ViewBag.Title = "Item";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Items</h2>
+
+@{
+    <a href="~/Item/New"><button class="btn btn-primary">Create Item</button></a>
+
+    <div style="margin-top:25px">
+
+        @if (Model.Any())
+        {
+            <table id="items" class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Sales Price</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.ActionLink(item.Name, "Edit", "Item", new { id = item.ID }, null) </td>
+                            <td>@item.Type</td>
+                            <td align="right">@item.SalesPrice.ToString("N")</td>
+                            <td align="center">
+                                <input type="button" class="btn btn-danger btn-gradient js-delete" data-item-id="@item.ID" value="Delete" />
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No Items Listed</p>
+        }
+    </div>
+}
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+
+            var table = $("#items").DataTable();
+
+            $("#items").on("click", ".js-delete", function () {
+                var button = $(this);
+
+                bootbox.confirm("Are you sure you want to delete this item?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/Item/Delete/" + button.attr("data-item-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+}
+
+
+
+

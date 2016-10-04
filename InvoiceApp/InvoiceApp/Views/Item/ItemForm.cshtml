@@ -1,0 +1,57 @@
+﻿@model InvoiceApp.ViewModels.ItemFormViewModel
+
+
+@{
+    ViewBag.Title = "Item";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Item</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+
+            @using (Html.BeginForm("Save", "Item"))
+            {
+                @Html.ValidationSummary(true, "Please fix the following errors.")
+
+                <div class="form-group">
+                    @Html.LabelFor(i => i.Item.Name)
+                    @Html.TextBoxFor(i => i.Item.Name, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(i => i.Item.Name)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(i => i.Item.Type)
+                    @Html.DropDownListFor(i => i.Item.Type, new SelectList(new string[] { "Inventory Part", "Service" }), new { @class = "form-control" })
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(i => i.Item.Cost)
+                    @Html.TextBoxFor(i => i.Item.Cost, "{0:N}", new { @class = "form-control", style = "text-align: right;" })
+                    @Html.ValidationMessageFor(i => i.Item.Cost)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(i => i.Item.SalesPrice)
+                    @Html.TextBoxFor(i => i.Item.SalesPrice, "{0:N}", new { @class = "form-control", style = "text-align: right;" })
+                    @Html.ValidationMessageFor(i => i.Item.SalesPrice)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(i => i.Item.AccountID)
+                    @Html.DropDownListFor(i => i.Item.AccountID, new SelectList(Model.Accounts, "ID", "Name"), "Select Account", new { @class = "form-control" })
+                    @Html.ValidationMessageFor(i => i.Item.AccountID)
+                </div>
+
+                @Html.HiddenFor(i => i.Item.ID)
+                @Html.AntiForgeryToken()
+
+                <button type="submit" class="btn btn-primary">Save</button>
+
+
+            }
+        </div>
+    </div>
+</div>

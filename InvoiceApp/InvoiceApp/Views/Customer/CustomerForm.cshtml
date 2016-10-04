@@ -1,0 +1,42 @@
+﻿@model InvoiceApp.Models.Customer
+
+@{
+    ViewBag.Title = "Customer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Customer</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+
+            @using (Html.BeginForm("Save", "Customer"))
+            {
+                @Html.ValidationSummary(true, "Please fix the following errors.")
+
+                <div class="form-group">
+                    @Html.LabelFor(c => c.Name)
+                    @Html.TextBoxFor(c => c.Name, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(c => c.Name)
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(c => c.Address)
+                    @Html.TextBoxFor(c => c.Address, new { @class = "form-control" })
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(c => c.Email)
+                    @Html.TextBoxFor(c => c.Email, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(c => c.Email)
+                </div>
+
+                @Html.HiddenFor(c => c.ID)
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">Save</button>
+
+
+            }
+        </div>
+    </div>
+</div>

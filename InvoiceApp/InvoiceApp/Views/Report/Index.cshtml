@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Invoice</h2>
+
+<iframe id="ifrmReportviewer" style="height:700px;width:99%;"></iframe>
+
+@section scripts
+{
+    <script>
+
+        $(document).ready(function () {
+
+            url = "@ViewBag.ReportURL";
+
+            var frame = document.getElementById("ifrmReportviewer")
+            frame.src = url;
+
+        });
+        
+    </script>
+}
+
+

@@ -1,0 +1,419 @@
+﻿@{
+    ViewBag.Title = "Invoice";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Invoice</h2>
+
+<div class="container">
+    
+        <div class="row">
+            <div class="col-md-4">
+
+                <div class="form-group">
+                    <label> Customer</label>
+                    <select class="form-control" id="customer"></select>
+                </div>
+
+                <div class="form-group">
+                    <label> Memo</label>
+                    <textarea cols="3" rows="3" class="form-control" id="memo"></textarea>
+                </div>
+
+                <div class="form-group">
+
+                </div>
+
+            </div>
+
+            <div class="col-md-2 pull-right">
+
+                <div class="form-group">
+                    <label> Invoice No</label>
+                    <input class="form-control textAlignRight" type="text" id="txtInvoiceno">
+                </div>
+
+                <div class="form-group">
+                    <label>Date</label>
+                    <input class="form-control" type="text" id="date">
+                </div>
+
+                <div class="form-group">
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+
+                <button style="float:right" class="btn btn-3d" id="btnAddNew">Add Row</button>
+
+                <table class="table table-responsive" id="tblItemDetails">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Rate</th>
+                            <th>Qty</th>
+                            <th>Amount</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <input type="hidden" id="hdnInvoiceID" />
+
+                <button class="btn btn-primary" id="btnSave">
+                    @if (ViewBag.Status == "Edit")
+                    {<text> Update</text>}
+                    else
+                    {<text>Save</text>}
+                </button>
+
+                @if (ViewBag.Status == "Edit")
+                {
+                    <button class="btn btn-danger" id="btnDelete">Delete</button>
+                }
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-2 pull-right">
+                <div class="form-group">
+                    <label> Total</label>
+                    <input class="form-control" type="text" id="txtTotal" style="text-align:right">
+                </div>
+            </div>
+        </div>
+    
+
+</div>
+
+@section scripts
+{
+    <script>
+
+        $(document).ready(function () {
+
+            var itemList;
+
+            $.ajax({
+
+                type: 'GET',
+                url: '/Invoice/GetItemData',
+                dataType: 'json',
+                success: function (data) {
+
+                    $.each(data, function (index, element) {
+
+                        itemList += '<option value = "' + this.ID + '"> ' + this.Name + '</option>';
+
+                    });
+
+
+                }
+            });
+
+            $.ajax({
+                type: 'GET',
+                url: '/Invoice/GetCustomerData',
+                dataType: 'json',
+                success: function (data) {
+                    $('#customer').append($('<option>').text("Select Customer").attr('value', ""));
+
+                    $.each(data, function (index, element) {
+                        $('#customer').append($('<option>').text(element.Name).attr('value', element.ID));
+                    });
+                }
+            });
+
+            $.ajax({
+                type: 'GET',
+                url: '/Invoice/GetInvoiceNo',
+                dataType: 'json',
+                success: function (data) {
+                    
+                    $("#txtInvoiceno").val(data.InvoiceNo);
+                }
+            });
+
+            $("#date").datepicker({
+                dateFormat: "yy-mm-dd"
+            })
+
+            var table = $('#tblItemDetails').DataTable(
+                    {
+                        "bFilter": false,
+                        "paging": false,
+                        "ordering": false,
+                        "info": false
+                    });
+
+        
+            $("#btnAddNew").on("click", function () {
+
+                //var table = document.getElementById('tblItemDetails');
+
+                //var newRow = document.getElementById('tblItemDetails').insertRow();
+                //var cell1 = newRow.insertCell(0);
+                //var cell2 = newRow.insertCell(1);
+                //var cell3 = newRow.insertCell(2);
+                //var cell4 = newRow.insertCell(3);
+                //var cell5 = newRow.insertCell(4);
+
+                //cell1.innerHTML = '<select class="items">' + itemList + '</select>';
+                //cell2.innerHTML = '<input class="txtRate">';
+                //cell3.innerHTML = '<input class="txtQty">';
+                //cell4.innerHTML = '<input class="txtAmount">';
+
+                //cell5.innerHTML = '<input type="button" class="btn btn-danger btn-gradient js-delete" value="Delete" />';
+
+                table.row.add([
+        '<select class="items">' + itemList + '</select>',
+        '<input class="txtRate textAlignRight">',
+        '<input class="txtQty textAlignRight">',
+        '<input class="txtAmount textAlignRight" disabled>',
+        '<input type="button" class="btn btn-danger btn-gradient btnDelete" value="Delete" >'
+                ]).draw();
+            })
+
+            $('#tblItemDetails tbody').on('click', '.btnDelete', function () {
+
+                table.row($(this).parents('tr')).remove().draw();
+                CalculateTotal();
+
+            });
+
+            //$("#invoiceform").validate({
+            //    rules: {
+            //        customer: "required",
+            //        txtInvoiceno: "required",
+            //        date: "required"
+            //    },
+            //    messages: {
+            //        customer: "Enter customer name",
+            //        txtInvoiceno: "Enter invoice no"
+            //    }
+            //});
+
+            $("#btnSave").on("click", function () {
+
+                var invoiceDetail = [];
+
+                $("#tblItemDetails tbody tr").each(function (index, element) {
+
+                    var item = {
+                        ItemID: $("select.items", this).val(),
+                        Rate: parseFloat(numeral().unformat($(".txtRate", this).val())),
+                        Qty: parseFloat(numeral().unformat($(".txtQty", this).val())),
+                        Amount: parseFloat(numeral().unformat($(".txtAmount", this).val())),
+                    }
+                    invoiceDetail.push(item);
+
+                });
+
+                var invoiceMaster = {
+
+                    InvoiceMasterID: $("#hdnInvoiceID").val(),
+                    InvoiceNo: $("#txtInvoiceno").val(),
+                    Date: $("#date").val(),
+                    Memo: $("#memo").val(),
+                    CustomerID: $("#customer").val(),
+                    Total: parseFloat(numeral().unformat($("#txtTotal").val()))
+                }
+
+                var jsonObj = {
+
+                    InvoiceMaster: invoiceMaster,
+                    InvoiceDetails: invoiceDetail
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/Invoice/Save',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: JSON.stringify(jsonObj),
+                    success: function (data) {
+
+                        if (data.status) {
+
+                            if ("@ViewBag.Status" == "Edit") {
+                                toastr.success("Successfully Updated");
+                            }
+                            else {
+                                toastr.success("Successfully Saved");
+                            }
+                            location.href = "/Invoice/InvoiceList/";
+                        }
+                        else {
+                            toastr.error("Error Occured");
+                        }
+                    },
+                    error: function (error) {
+
+                        console.log(error);
+                    }
+                });
+
+            });
+
+
+            var status = "@ViewBag.Status";
+
+            if (status == "Edit") {
+                $.ajax({
+
+                    type: 'GET',
+                    url: '/Invoice/InvoiceDetails/@ViewBag.InvoiceID',
+                    dataType: 'json',
+                    success: function (data) {
+
+                        $("#hdnInvoiceID").val(data.InvoiceMaster.InvoiceMasterID);
+                        $("#customer").val(data.InvoiceMaster.CustomerID);
+                        $("#txtInvoiceno").val(data.InvoiceMaster.InvoiceNo);
+                        $("#memo").val(data.InvoiceMaster.Memo);
+                        $("#txtTotal").val(numeral(data.InvoiceMaster.Total).format('0,0.00'));
+
+                        var date = new Date(data.InvoiceMaster.Date);
+                        var month = date.getMonth() + 1;
+                        var day = date.getDate();
+                        var year = date.getFullYear();
+                        var formatedDate = year + "-" + month + "-" + day;
+
+                        $("#date").val(formatedDate);
+
+                        var InvoiceDetails = data.InvoiceDetails;
+
+                        $.each(InvoiceDetails, function () {
+
+                            table.row.add([
+            '<select class="items" >' + itemList + '</select>',
+            '<input class="txtRate textAlignRight" value="' + numeral(this.Rate).format('0,0.00') + '">',
+            '<input class="txtQty textAlignRight" value="' + numeral(this.Qty).format('0,0.00') + '">',
+            '<input class="txtAmount textAlignRight" value="' + numeral(this.Amount).format('0,0.00') + '" disabled>',
+            '<input type="button" class="btn btn-danger btn-gradient btnDelete" value="Delete" >'
+                            ]).draw();
+
+                        });
+
+
+                        $.each(InvoiceDetails, function (index, element) {
+
+                            $('#tblItemDetails tbody tr:eq(' + index + ') td:eq(0) select').val(element.ItemID)
+
+                        });
+                    }
+                });
+            }
+
+            $("#btnDelete").on("click", function () {
+
+                bootbox.confirm("Are you sure you want to delete this invoice?", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "/Invoice/Delete/" + $("#hdnInvoiceID").val(),
+                            method: "DELETE",
+                            success: function (data) {
+
+                                if (data.status) {
+                                    toastr.success("Successfully Deleted");
+                                    location.href = "/Invoice/InvoiceList/";
+                                }
+                                else {
+                                    toastr.error("Error Occured");
+                                }
+
+                            }
+                        });
+                    }
+                });
+            });
+
+            $('#tblItemDetails tbody').on('change', '.items', function () {
+
+                var selectControl = this;
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/Invoice/GetItemRate/',
+                    data: { itemID: this.value },
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (data) {
+
+                        if (data.rate != '') {
+                            $(selectControl).parents('tr').get(0).cells[1].childNodes[0].value = $.number(data.rate, 2);
+                        }
+                    }
+                });
+
+            });
+
+            $('#tblItemDetails tbody').on('change', '.txtRate', function () {
+
+                if (this.value != '') {
+                    this.value = $.number(this.value, 2);
+                }
+            });
+
+            $('#tblItemDetails tbody').on('keyup', '.txtRate', function () {
+
+                if (this.value != this.value.replace(/[^0-9\.]/g, '')) {
+                    this.value = this.value.replace(/[^0-9\.]/g, '');
+                }
+            });
+
+            $('#tblItemDetails tbody').on('change', '.txtQty', function () {
+
+                var rate = numeral().unformat($(this).parents('tr').get(0).cells[1].childNodes[0].value);
+
+                var qty = this.value;
+
+                if (qty != '') {
+                    this.value = $.number(qty, 2);
+                }
+
+                var amount = rate * qty;
+
+                $(this).parents('tr').get(0).cells[3].childNodes[0].value = $.number(amount, 2);
+
+                CalculateTotal();
+
+            });
+
+
+            $('#tblItemDetails tbody').on('keyup', '.txtQty', function () {
+
+                if (this.value != this.value.replace(/[^0-9\.]/g, '')) {
+                    this.value = this.value.replace(/[^0-9\.]/g, '');
+                }
+            });
+
+            function CalculateTotal() {
+
+                var total = 0;
+
+                $('#tblItemDetails tbody tr').each(function () {
+
+                    if ($(this).find("td:eq(3) input").val() != '') {
+                        total += parseFloat(numeral().unformat($(this).find("td:eq(3) input").val()));
+                    }
+
+                })
+
+                $("#txtTotal").val($.number(total, 2));
+            }
+
+        });
+
+</script>
+
+
+
+}
