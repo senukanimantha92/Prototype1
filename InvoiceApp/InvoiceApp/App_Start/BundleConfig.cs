@@ -25,7 +25,8 @@ namespace InvoiceApp
                         "~/Scripts/plugins/jquery.nicescroll.js",
                         "~/Scripts/toastr.min.js",
                         "~/Scripts/jquery.number.min.js",
-                        "~/Scripts/numeral/numeral.min.js"));
+                        "~/Scripts/numeral/numeral.min.js",
+                        "~/Scripts/numeral/jquery.unobtrusive-ajax.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
@@ -41,6 +42,7 @@ namespace InvoiceApp
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.min.css",
+                      "~/Content/jquery-ui.css",
                       "~/Content/plugins/font-awesome.min.css",
                       "~/Content/plugins/simple-line-icons.css",
                       "~/Content/plugins/animate.min.css",

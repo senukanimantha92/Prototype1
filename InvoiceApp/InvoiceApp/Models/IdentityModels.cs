@@ -25,6 +25,7 @@ namespace InvoiceApp.Models
         public DbSet<Account> Accounts { get; set; }
         public DbSet<InvoiceMaster> InvoiceMaster { get; set; }
         public DbSet<InvoiceDetail> InvoiceDetail { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)

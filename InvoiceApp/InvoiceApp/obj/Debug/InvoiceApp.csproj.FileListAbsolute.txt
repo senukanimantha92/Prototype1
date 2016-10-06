@@ -140,3 +140,5 @@ D:\Projects\GitRepo\Prototype1\InvoiceApp\InvoiceApp\obj\Debug\RdlCompile.cache
 D:\Projects\GitRepo\Prototype1\InvoiceApp\InvoiceApp\obj\Debug\RdlCompile.compiled
 D:\Projects\GitRepo\Prototype1\InvoiceApp\InvoiceApp\obj\Debug\InvoiceApp.dll
 D:\Projects\GitRepo\Prototype1\InvoiceApp\InvoiceApp\obj\Debug\InvoiceApp.pdb
+D:\Projects\GitRepo\Prototype1\InvoiceApp\InvoiceApp\obj\Debug\InvoiceApp.Migrations.AddPayment.resources
+D:\Projects\GitRepo\Prototype1\InvoiceApp\InvoiceApp\obj\Debug\InvoiceApp.Migrations.ADDGETOpeningBalance.resources
